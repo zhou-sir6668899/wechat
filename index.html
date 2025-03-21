@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { margin:0; overflow:hidden; }
+        #page1, #page2, #page3 {
+            position:fixed;
+            width:100vw;
+            height:100vh;
+            transition:0.5s;
+        }
+        .input-box {
+            animation: zoom 1.5s infinite;
+            position: absolute;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
+        }
+        @keyframes zoom {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        #loading {
+            animation: rotate 2s linear infinite;
+        }
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 第一页 -->
+    <div id="page1">
+        <canvas id="matrix"></canvas>
+        <input type="text" class="input-box" placeholder="请输入高三（）班"
+               style="font-size:24px; padding:10px; text-align:center;"
+               onchange="checkClass(this.value)">
+    </div>
+
+    <!-- 第二页 -->
+    <div id="page2" style="display:none;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%)">
+            <div style="font-size:40px; cursor:pointer" onclick="showLoading()">
+                ＋ 点击上传高三语录
+            </div>
+        </div>
+    </div>
+
+    <!-- 第三页 -->
+    <div id="page3" style="display:none;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%)">
+            <div id="countdown" style="font-size:32px"></div>
+        </div>
+    </div>
+
+<script>
+// 数字雨背景
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const chars = '01';
+const drops = new Array(Math.floor(canvas.width/10)).fill(0);
+
+function drawMatrix() {
+    ctx.fillStyle = 'rgba(0,0,0,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#0F0';
+    ctx.font = '14px monospace';
+
+    drops.forEach((drop, i) => {
+        ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*10, drop*10);
+        if(drop*10 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+    });
+}
+setInterval(drawMatrix, 50);
+
+function checkClass(val) {
+    if(val === '14班') {
+        document.getElementById('page1').style.display = 'none';
+        document.getElementById('page2').style.display = 'block';
+    }
+}
+
+function showLoading() {
+    document.getElementById('page2').style.display = 'none';
+    document.getElementById('page3').style.display = 'block';
+
+    let time = 60;
+    const timer = setInterval(() => {
+        document.getElementById('countdown').innerHTML = `
+            <div style="text-align:center">
+                <div id="loading">⏳</div>
+                请等待 ${time--} 秒
+            </div>
+        `;
+        if(time < 0) {
+            clearInterval(timer);
+            document.body.innerHTML = `
+                <div style="background:#000; height:100vh; display:flex;
+                            justify-content:center; align-items:center">
+                    <div style="font-size:80px">😊</div>
+                    <div style="position:absolute; bottom:20%; color:#FFF">
+                        成功浪费你一分钟
+                    </div>
+                </div>
+            `;
+        }
+    }, 1000);
+}
+</script>
+</body>
+</html>
